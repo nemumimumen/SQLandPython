@@ -1,0 +1,43 @@
+//SQL//
+
+with Malecount as
+(SELECT education, case when sex = 'Male' then 1 else 0 end as Males
+FROM train2
+where workclass = 'Private'
+)
+select education, cast(malecount as REAL)/cast(counts as REAL) as male_percent
+from (Select education, count(Males) as counts, SUM(Males) as malecount from Malecount
+GROUP by education)
+;
+
+///Python///
+
+# show upload dialog
+from google.colab import files
+uploaded = files.upload()
+
+# read data　初めから曜日別と連続で値上がりしたかのカラムを用意することにした。エクセルで処理
+import pandas as pd
+df = pd.read_csv('train_stock - train.csv', encoding='utf-8', header=0)
+df.head(5)
+
+df['Open-close'] = df['Close'] - df['Open']
+
+#data create
+train_X = df.drop(['Up','Date','曜日'], axis=1)
+train_y = df['Up']
+
+#test train split
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split, GridSearchCV
+(train_X, test_X ,train_y, test_y) = train_test_split(train_X, train_y, test_size = 0.3, random_state = 660)
+
+from sklearn.ensemble import RandomForestClassifier as RFC
+clf = RFC(n_estimators=100, random_state=0).fit(train_X, train_y)
+
+print("訓練データへの精度")
+print("{:.4f}" .format(clf.score(train_X, train_y)))
+print("未知データへの精度")
+print("{:.4f}" .format(clf.score(test_X, test_y)))
+#連続で上がったかのデータを入れると精度が上がった
