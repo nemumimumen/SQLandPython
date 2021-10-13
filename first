@@ -1,4 +1,4 @@
-//SQL//
+//SQL/////////////
 
 with Malecount as
 (SELECT education, case when sex = 'Male' then 1 else 0 end as Males
@@ -9,6 +9,14 @@ select education, cast(malecount as REAL)/cast(counts as REAL) as male_percent
 from (Select education, count(Males) as counts, SUM(Males) as malecount from Malecount
 GROUP by education)
 ;
+
+//SQL2///////
+
+select psales_date, employee.emp_id, employee.emp_name, SUM(total) from packedsales
+left outer join employee on packedsales.emp_id = employee.emp_id
+group by psales_date, employee.emp_id
+;
+
 
 ///Python///
 
