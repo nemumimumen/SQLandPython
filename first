@@ -1,4 +1,4 @@
-//SQL/////////////
+//SQL サブクエリとwith////
 
 with Malecount as
 (SELECT education, case when sex = 'Male' then 1 else 0 end as Males
@@ -10,16 +10,14 @@ from (Select education, count(Males) as counts, SUM(Males) as malecount from Mal
 GROUP by education)
 ;
 
-//SQL2///////
+//SQL2  テーブルジョインとグループ化２つ////
 
 select psales_date, employee.emp_id, employee.emp_name, SUM(total) from packedsales
 left outer join employee on packedsales.emp_id = employee.emp_id
 group by psales_date, employee.emp_id
 ;
 
-
-///Python///
-
+///Python  ランダムフォレストによる分類///
 # show upload dialog
 from google.colab import files
 uploaded = files.upload()
@@ -49,3 +47,26 @@ print("{:.4f}" .format(clf.score(train_X, train_y)))
 print("未知データへの精度")
 print("{:.4f}" .format(clf.score(test_X, test_y)))
 #連続で上がったかのデータを入れると精度が上がった
+
+///Python 　２つのサイコロを投げた和を〇回記録する///
+#サイコロの設定２つ
+dice_a = [1,2,3,4,5,6]
+dice_b = [1,2,3,4,5,6]
+
+import matplotlib.pyplot as plt
+list_sum = []
+x_line = list(range(2,13,1))
+y_line = []
+
+def sum_dice(cast_count):
+  for i in range(cast_count):
+    cast_a = random.choice(dice_a)
+    cast_b = random.choice(dice_a)
+    list_sum.append(cast_a + cast_b)
+  for l in x_line:
+    y_line.append(list_sum.count(l))
+  plt.bar(x_line, y_line, tick_label=range(2,13,1))
+  plt.show()
+
+sum_dice(100)
+sum_dice(1000)
