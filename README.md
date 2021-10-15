@@ -1,4 +1,5 @@
 # SQLandPython
+自分の就活用にコードを載せているページです
 SQL1個目のデータベース
 https://signate.jp/competitions/107/data
 
