@@ -1,21 +1,42 @@
-//SQL サブクエリとwith////
+/**
+申請（submit）したセッションにて、申請する前にどのページを見ていたのかを出したい。
+ユニークなセッションIDを作成し、with句でpage_viewイベントに絞り込んだもの、申請したIDをリストアップする。
+それを結合し、itemページとcategoryページを見ている回数を出す。
+本来のGA4からデータを持ってきているBigqueryではevent_nameの下層をunnestしないといけないが、それはunnestされた状態になっているとして記載する
+*/
 
-with Malecount as
-(SELECT education, case when sex = 'Male' then 1 else 0 end as Males
-FROM train2
-where workclass = 'Private'
+WITH pv AS (
+  SELECT 
+    CONCAT(user_pseudo_id, session_id) AS unique_session_id,
+    event_timestamp,
+    page_location
+  FROM
+    `BQ_GA4_table`
+  WHERE 
+    event_name = 'page_view'
+),
+
+submit_id AS (
+  SELECT 
+    CONCAT(user_pseudo_id, session_id) AS unique_session_id,
+    MIN(event_timestamp) AS min_submit_time
+  FROM
+    `BQ_GA4_table`
+  WHERE 
+    event_name = 'submit'
 )
-select education, cast(malecount as REAL)/cast(counts as REAL) as male_percent
-from (Select education, count(Males) as counts, SUM(Males) as malecount from Malecount
-GROUP by education)
-;
 
-//SQL2  テーブルジョインとグループ化２つ////
+SELECT 
+  submit_id.unique_session_id,
+  COUNTIF(page_location LIKE '%/item/%') AS item_pv,
+  COUNTIF(page_location LIKE '%/category/%') AS category_pv
+FROM 
+  submit_id
+LEFT OUTER JOIN pv
+  ON (submit_id.unique_session_id = pv.unique_session_id AND submit_id.min_submit_time > pv.event_timestamp)
+GROUP BY submit_id.unique_session_id
+LIMIT 1000;
 
-select psales_date, employee.emp_id, employee.emp_name, SUM(total) from packedsales
-left outer join employee on packedsales.emp_id = employee.emp_id
-group by psales_date, employee.emp_id
-;
 
 ///Python  ランダムフォレストによる分類///
 # show upload dialog
